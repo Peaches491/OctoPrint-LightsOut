@@ -119,6 +119,7 @@ class LightsoutPlugin(
             self._logger.info("LightsOut detected 'ON' command: " + cmd)
             if self._printer.is_printing() or self._printer.is_paused():
                 self._logger.info("Ignoring Lights ON command. Printer busy")
+                return
 
             self._logger.info("Restarting LightsOut timer")
             self.restart_timer()
