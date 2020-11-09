@@ -1,4 +1,26 @@
+<h3>LightsOff Settings</h3>
+<p>If enabled, plugin will auotmatically send given
+<code>Lights Off Command</code> gcode to the printer, after the specified
+<code>timeout</code>. The LightsOut Timer is automatically reset if any of the
+following occur:
+<ul>
+  <li>a print ends (complete, canceled, or errored)</li>
+  <li>the lights are manually activated using
+  <code>M150</code>with a non-zero
+  <code>P</code>value,</li>
+  <li>or, the settings are updated</li>
+</ul></p>
+<br>
 <form class="form-horizontal">
+  <div class="control-group">
+    <label class="control-label">{{ _('Enable') }}</label>
+    <div class="controls">
+      <label class="checkbox">
+        <input type="checkbox"
+               data-bind="checked: settings.plugins.lightsout.enabled"></input>
+      </label>
+    </div>
+  </div>
   <div class="control-group">
     <label class="control-label">{{ _('Timeout') }}</label>
     <div class="controls">
@@ -10,16 +32,17 @@
                data-bind="value: settings.plugins.lightsout.timeout"></input>
         <span class="add-on">s</span>
       </div>
-      <span class="help-inline">Timeout after printing ends</span>
+      <span class="help-inline">Timeout before shutting the lights off</span>
     </div>
   </div>
   <div class="control-group">
-    <label class="control-label">{{ _('Lights Off') }}</label>
+    <label class="control-label">{{ _('Lights Off Command') }}</label>
     <div class="controls">
       <textarea class="block"
                 data-bind="value: settings.plugins.lightsout.off_gcode">
                 </textarea>
-      <span class="help-inline">GCode to turn lights off</span>
+      <span class="help-block">GCode commands to send in order to turn the
+      lights off</span>
     </div>
   </div>
 </form>

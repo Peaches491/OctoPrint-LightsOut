@@ -17,20 +17,26 @@ class LightsoutPlugin(
     ##~~ StartupPlugin mixin
     def on_after_startup(self):
         self._logger.info("LightsOut plugin Starting up...")
+        self.restart_timer()
 
     ##~~ SettingsPlugin mixin
     def get_settings_defaults(self):
-        return dict(timeout=60, off_gcode="M150 P0")
+        return dict(enabled=False, timeout=60, off_gcode="M150 P0")
 
-    def get_timeout_sec(self):
+    def enabled(self):
+        return bool(self._settings.get(["enabled"]))
+
+    def timeout_sec(self):
         return int(self._settings.get(["timeout"]))
 
-    def get_off_gcode(self):
+    def off_gcode(self):
         return self._settings.get(["off_gcode"])
 
     ##~~ EventHandlerPlugin
     def on_event(self, event, payload):
-        self._logger.info("LightsOut received event: " + str(event))
+        if not self.enabled():
+            self.stop_timer()
+            return
         if event in (
             "Startup",
             "SettingsUpdated",
@@ -43,11 +49,15 @@ class LightsoutPlugin(
             self.stop_timer()
 
     def restart_timer(self):
-        timeout = self.get_timeout_sec()
-        self._logger.info("LightsOut scheduling RepeatedTimer: " + str(timeout))
-
         self.stop_timer()
 
+        if not self.enabled():
+            return
+
+        timeout = self.timeout_sec()
+        self._logger.info(
+            "LightsOut scheduling shutdown timer: " + str(timeout)
+        )
         self._timer = RepeatedTimer(
             timeout, self.send_lights_off, run_first=False
         )
@@ -55,11 +65,17 @@ class LightsoutPlugin(
 
     def stop_timer(self):
         if self._timer is not None:
+            self._logger.info("LightsOut canceling previous timer...")
             self._timer.cancel()
 
     def send_lights_off(self):
+        if not self.enabled():
+            self._logger.info(
+                "LightsOut plugin attempted to shut lights off while disabled!"
+            )
+            return
         self._logger.info("LightsOut plugin Shutting lights off!")
-        off_gcode = self.get_off_gcode()
+        off_gcode = self.off_gcode()
         self._printer.commands(off_gcode, tags=set(["lightsout"]))
 
     ##~~ AssetPlugin mixin
@@ -75,8 +91,9 @@ class LightsoutPlugin(
     ##~~ TemplatePlugin mixin
     def get_template_vars(self):
         return dict(
-            timeout=self.get_timeout_sec(),
-            off_gcode=self.get_off_gcode(),
+            enabled=self.enabled(),
+            timeout=self.timeout_sec(),
+            off_gcode=self.off_gcode(),
         )
 
     def get_template_configs(self):
