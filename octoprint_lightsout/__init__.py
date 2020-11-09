@@ -116,7 +116,10 @@ class LightsoutPlugin(
         **kwargs
     ):
         if self.is_lights_on_gcode(cmd, cmd_type, gcode, tags):
-            self._logger.info("LightsOut detected 'ON' GCode: " + cmd)
+            self._logger.info("LightsOut detected 'ON' command: " + cmd)
+            if self._printer.is_printing() or self._printer.is_paused():
+                self._logger.info("Ignoring Lights ON command. Printer busy")
+
             self._logger.info("Restarting LightsOut timer")
             self.restart_timer()
 
