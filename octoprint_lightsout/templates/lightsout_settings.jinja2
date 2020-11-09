@@ -1,0 +1,25 @@
+<form class="form-horizontal">
+  <div class="control-group">
+    <label class="control-label">{{ _('Timeout') }}</label>
+    <div class="controls">
+      <div class="input-append">
+        <input type="number"
+               step="any"
+               min="0"
+               class="input-mini text-right"
+               data-bind="value: settings.plugins.lightsout.timeout"></input>
+        <span class="add-on">s</span>
+      </div>
+      <span class="help-inline">Timeout after printing ends</span>
+    </div>
+  </div>
+  <div class="control-group">
+    <label class="control-label">{{ _('Lights Off') }}</label>
+    <div class="controls">
+      <textarea class="block"
+                data-bind="value: settings.plugins.lightsout.off_gcode">
+                </textarea>
+      <span class="help-inline">GCode to turn lights off</span>
+    </div>
+  </div>
+</form>
